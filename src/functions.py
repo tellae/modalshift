@@ -4,6 +4,7 @@ Functions
 
 import os
 import boto3
+import botocore
 import tqdm
 import yaml
 
@@ -33,7 +34,7 @@ S3_CLIENT = session.client(
 )
 
 
-def download_object_from_s3(client, *, bucket, key, version_id=None, filename):
+def download_object_from_s3_with_progress(client, *, bucket, key, version_id=None, filename):
     """
     Download an object from S3 with a progress bar.
 
@@ -74,10 +75,17 @@ def download_object_from_s3(client, *, bucket, key, version_id=None, filename):
         ExtraArgs = None
 
     with tqdm.tqdm(total=object_size, unit="B", unit_scale=True, desc=filename) as pbar:
-        s3.download_file(
-            Bucket=bucket,
-            Key=key,
-            ExtraArgs=ExtraArgs,
-            Filename=filename,
-            Callback=lambda bytes_transferred: pbar.update(bytes_transferred),
+        download_object_from_s3(
+            s3,
+            bucket,
+            key,
+            filename,
+            ExtraArgs,
+            lambda bytes_transferred: pbar.update(bytes_transferred),
         )
+
+
+def download_object_from_s3(client, bucket, key, filename, extraArgs=None, callback=None):
+    client.download_file(
+        Bucket=bucket, Key=key, ExtraArgs=extraArgs, Filename=filename, Callback=callback
+    )
