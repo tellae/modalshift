@@ -5,7 +5,12 @@ Get data from S3
 # %%
 # imports
 
-from functions import OUTPUT_DIRECTORY, S3_CLIENT, botocore, download_object_from_s3
+from functions import (
+    OUTPUT_DIRECTORY,
+    S3_CLIENT,
+    botocore,
+    download_object_from_s3_with_progress,
+)
 
 
 # %%
@@ -59,14 +64,14 @@ files = [
     "GTFS-RT/bibus/bus_position_20240102_bibus.csv.bz2",
 ]
 
-# %%
-#
-
 for file in files:
     print("*******", file, "******")
     try:
-        download_object_from_s3(
-            S3_CLIENT, bucket, file, f"{OUTPUT_DIRECTORY}/{files[1].replace('/', '_')}"
+        download_object_from_s3_with_progress(
+            client=S3_CLIENT,
+            bucket=bucket,
+            key=file,
+            filename=f"{OUTPUT_DIRECTORY}/{file.replace('/', '_')}",
         )
     except botocore.exceptions.ClientError as e:
         print(e)
