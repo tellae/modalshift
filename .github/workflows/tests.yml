@@ -1,0 +1,16 @@
+name: Tests
+
+on:
+  pull_request:
+    # The branches below must be a subset of the branches above
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: [self-hosted, cluster.loopingz.com]
+    steps:
+      - uses: actions/checkout@v2
+      # black formatting
+      - uses: psf/black@stable
+        with:
+          options: "--line-length 100 --check --diff"
